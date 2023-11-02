@@ -5,7 +5,7 @@ from sklearn.neighbors import KDTree
 lidar_data = pd.read_csv('station7_market.csv')
 
 # Define a function to calculate the normal vectors for each point
-def calculate_normals(points, k=100):
+def calculate_normals(points, k=10):
     tree = KDTree(points)
     normals = []
 
