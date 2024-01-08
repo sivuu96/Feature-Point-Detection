@@ -2,8 +2,6 @@ import numpy as np
 import pandas as pd
 from sklearn.neighbors import KDTree
 
-lidar_data = pd.read_csv('station7_market.csv')
-
 # Define a function to calculate the normal vectors for each point
 def calculate_normals(points, k=10):
     tree = KDTree(points)
@@ -26,31 +24,39 @@ def calculate_normals(points, k=10):
 
     return np.array(normals)
 
-lidar_points = lidar_data[['x', 'y', 'z']].values
-lidar_normals = calculate_normals(lidar_points)
+def feature_point_calc(threshold):
 
-threshold = 0.000001
+    lidar_data = pd.read_csv('pavin2.csv')
+    lidar_points = lidar_data[['x', 'y', 'z']].values
+    lidar_normals = calculate_normals(lidar_points)
+    
+    feature_indices = []
+    dot_products = []
+    num_feature_normals=0
+    
+    # Iterate through the LiDAR points and check for feature points
+    for i, point in enumerate(lidar_points):
+        neighbor_normals = lidar_normals[i]
+    
+        # Calculate the dot product of the normal vectors
+        dot_products = np.dot(neighbor_normals, lidar_normals.T)
+        # Count the number of normals with a dot product below the threshold
+        num_feature_normals = np.sum(dot_products < threshold)
+    
+    #print(num_feature_normals)
+    
+    j=0
+    while(j<len(dot_products)):
+        if(dot_products[j]<threshold):
+            feature_indices.append(j)
+        j=j+1
+    
 
-feature_indices = []
-dot_products = []
-num_feature_normals=0
-
-# Iterate through the LiDAR points and check for feature points
-for i, point in enumerate(lidar_points):
-    neighbor_normals = lidar_normals[i]
-
-    # Calculate the dot product of the normal vectors
-    dot_products = np.dot(neighbor_normals, lidar_normals.T)
-    # Count the number of normals with a dot product below the threshold
-    num_feature_normals = np.sum(dot_products < threshold)
-
-print(num_feature_normals)
-j=0
-while(j<len(dot_products)):
-    if(dot_products[j]<threshold):
-        feature_indices.append(j)
-    j=j+1
-
-feature_points = lidar_points[feature_indices]
-
-pd.DataFrame(feature_points, columns=['x', 'y', 'z']).to_csv('station7_market_0.000001-thr.csv', index=False)
+    feature_points = lidar_points[feature_indices]
+    print(len(feature_points))
+    
+    pd.DataFrame(feature_points, columns=['x', 'y', 'z']).to_csv('model.csv', index=False)
+    return num_feature_normals
+    
+if __name__ == "__main__":
+   feature_point_calc(0.69)
