@@ -128,7 +128,7 @@ int main(int argc, char **argv)
 		cout << "Model ID: " << modelFName << " (" << goicp.Nm << "), Data ID: " << dataFName << " (" << goicp.Nd << ")" << endl;
 		cout << "Registering..." << endl;
 		clockBegin = clock();
-		float squareError=goicp.Register();
+		goicp.Register();
 		// save it to array
 		//we are ending the loop where we get the rmse value
 
